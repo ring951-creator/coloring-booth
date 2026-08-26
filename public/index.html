@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>청사진의 시대 — 컬러링 페이지 만들기</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
+
+  :root{
+    --navy: #0f2540;
+    --prussian: #1b3a6b;
+    --paper: #fdf8ed;
+    --paper-dim: #f2ead6;
+    --sun: #f2c14e;
+    --ink: #1a1a1a;
+    --line: #cdbfa0;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0; min-height:100vh; background: var(--navy);
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(242,193,78,0.06), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(27,58,107,0.4), transparent 45%);
+    font-family: 'Noto Sans KR', sans-serif; color: var(--ink);
+    padding: 32px 16px 64px;
+  }
+  .wrap{ max-width: 760px; margin: 0 auto; }
+  header{ text-align:center; color: var(--paper); margin-bottom: 28px; }
+  .eyebrow{ font-size: 12px; letter-spacing: 0.25em; color: var(--sun); text-transform: uppercase; margin-bottom: 10px; }
+  h1{ font-family: 'Playfair Display', serif; font-size: clamp(26px, 5vw, 38px); margin: 0 0 8px; font-weight: 700; }
+  .sub{ color: #c9d4e6; font-size: 14px; margin:0; }
+  .card{ background: var(--paper); border-radius: 4px; padding: 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.35); border: 1px solid var(--line); }
+  .upload-zone{ border: 2px dashed var(--line); border-radius: 4px; padding: 28px 16px; text-align:center; background: var(--paper-dim); margin-bottom: 20px; }
+  .upload-zone p{ margin: 0 0 14px; font-size: 13px; color: #6b6250; }
+  input[type=file]{ display:none; }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; background: var(--prussian); color: var(--paper);
+    border:none; padding: 12px 24px; border-radius: 3px; font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px; font-weight: 500; cursor:pointer; transition: background 0.15s ease;
+  }
+  .btn:hover{ background: var(--navy); }
+  .btn:disabled{ background:#b9b2a0; cursor:not-allowed; }
+  .btn.secondary{ background: transparent; color: var(--prussian); border: 1px solid var(--prussian); }
+  .btn.secondary:hover{ background: rgba(27,58,107,0.06); }
+  .btn-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .status{ text-align:center; font-size: 13px; color: #6b6250; margin: 12px 0 0; min-height: 18px; line-height:1.6; }
+  .status.error{ color:#b0433a; font-weight:500; }
+  .status.warn{ color:#8a6a1f; font-weight:500; }
+  .spinner{ display:none; flex-direction: column; align-items:center; gap:10px; color: #6b6250; font-size: 13px; padding: 30px 0; }
+  .spinner.active{ display:flex; }
+  .spinner .ring{ width: 30px; height: 30px; border: 3px solid var(--line); border-top-color: var(--prussian); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+  .preview-frame{
+    position: relative; background: repeating-conic-gradient(#e8e0cb 0% 25%, #f2ead6 0% 50%) 0 0/16px 16px;
+    border: 1px solid var(--line); border-radius: 4px; padding: 14px;
+    display:flex; justify-content:center; align-items:center; min-height: 260px;
+  }
+  img.result, canvas{ max-width: 100%; display:block; background: white; box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+  .placeholder{ color: #9c937d; font-size: 13px; text-align:center; }
+  .badge{ display:inline-block; font-size:11px; padding:3px 8px; border-radius:10px; margin-bottom:10px; }
+  .badge.ai{ background:#1b3a6b; color:#fdf8ed; }
+  .badge.offline{ background:#f2c14e; color:#3a2c0a; }
+  footer{ text-align:center; color: #7c8aa5; font-size: 12px; margin-top: 24px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Cyanotype Portrait · Coloring Page</div>
+    <h1>청사진의 시대</h1>
+    <p class="sub">사진을 찍으면 AI가 컬러링 페이지로 다시 그려드려요</p>
+  </header>
+
+  <div class="card">
+    <div class="upload-zone">
+      <p>얼굴 사진을 선택하거나 바로 촬영하세요</p>
+      <div class="btn-row">
+        <label class="btn" for="fileInput">사진 선택 / 촬영</label>
+      </div>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+
+    <div class="spinner" id="spinner"><div class="ring"></div><span id="spinnerLabel">AI가 그림을 그리는 중... (10~20초 정도 걸려요)</span></div>
+
+    <div class="preview-frame" id="previewFrame">
+      <p class="placeholder" id="placeholder">사진을 선택하면 여기에 결과가 나타나요</p>
+    </div>
+
+    <p class="status" id="statusText"></p>
+
+    <div class="btn-row" style="margin-top:18px;">
+      <button class="btn" id="downloadBtn" disabled>다운로드</button>
+      <button class="btn secondary" id="resetBtn" disabled>다시 선택</button>
+    </div>
+  </div>
+
+  <footer>촬영한 사진은 저장되지 않으며, 변환 후 서버에서 즉시 삭제됩니다</footer>
+</div>
+
+<canvas id="workCanvas" style="display:none;"></canvas>
+
+<script>
+const fileInput = document.getElementById('fileInput');
+const previewFrame = document.getElementById('previewFrame');
+const placeholder = document.getElementById('placeholder');
+const spinner = document.getElementById('spinner');
+const spinnerLabel = document.getElementById('spinnerLabel');
+const statusText = document.getElementById('statusText');
+const downloadBtn = document.getElementById('downloadBtn');
+const resetBtn = document.getElementById('resetBtn');
+const workCanvas = document.getElementById('workCanvas');
+
+let resultDataUrl = null;
+
+function setStatus(msg, level){
+  statusText.textContent = msg || '';
+  statusText.className = 'status' + (level ? ' ' + level : '');
+}
+function showSpinner(label){
+  spinner.classList.add('active');
+  spinnerLabel.textContent = label;
+  placeholder.style.display = 'none';
+  previewFrame.querySelectorAll('img,canvas.shown').forEach(el => el.remove());
+}
+function hideSpinner(){ spinner.classList.remove('active'); }
+
+function showResult(dataUrl, badgeType){
+  resultDataUrl = dataUrl;
+  previewFrame.innerHTML = '';
+  const badge = document.createElement('div');
+  badge.className = 'badge ' + badgeType;
+  badge.textContent = badgeType === 'ai' ? 'AI 생성' : '오프라인 변환';
+  const wrap = document.createElement('div');
+  wrap.style.textAlign = 'center';
+  const img = document.createElement('img');
+  img.className = 'result';
+  img.src = dataUrl;
+  wrap.appendChild(badge);
+  wrap.appendChild(document.createElement('br'));
+  wrap.appendChild(img);
+  previewFrame.appendChild(wrap);
+  downloadBtn.disabled = false;
+  resetBtn.disabled = false;
+}
+
+// 사진을 서버로 보내기 전, 너무 크면 자동으로 줄여서 업로드 용량 제한을 피함
+function resizeImageFile(file, maxDim, quality){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        const scale = Math.min(1, maxDim / Math.max(w, h));
+        w = Math.round(w * scale); h = Math.round(h * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob(blob => {
+          if(!blob) return reject(new Error('이미지 압축 실패'));
+          resolve(new File([blob], 'photo.jpg', { type: 'image/jpeg' }));
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+fileInput.addEventListener('change', async (e) => {
+  const rawFile = e.target.files[0];
+  if(!rawFile) return;
+
+  setStatus('');
+  showSpinner('AI가 그림을 그리는 중... (10~20초 정도 걸려요)');
+
+  try{
+    const file = await resizeImageFile(rawFile, 1024, 0.85);
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    const res = await fetch('/api/generate', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if(res.ok && data.image){
+      hideSpinner();
+      showResult(data.image, 'ai');
+      setStatus('');
+      return;
+    }
+
+    // 서버가 에러를 반환한 경우 -> 오프라인 방식으로 자동 전환
+    console.warn('AI 생성 실패:', data);
+    const reason = data.error === 'REFUSED'
+      ? 'AI가 이 사진을 처리하지 못했어요 (안전 정책)'
+      : 'AI 서버에 연결하지 못했어요';
+    setStatus(reason + ' — 오프라인 방식으로 다시 시도할게요', 'warn');
+    await fallbackOffline(rawFile);
+
+  }catch(err){
+    console.error(err);
+    setStatus('AI 서버에 연결하지 못했어요 — 오프라인 방식으로 다시 시도할게요', 'warn');
+    await fallbackOffline(rawFile);
+  }
+});
+
+resetBtn.addEventListener('click', () => {
+  fileInput.value = '';
+  resultDataUrl = null;
+  previewFrame.innerHTML = '<p class="placeholder" id="placeholder">사진을 선택하면 여기에 결과가 나타나요</p>';
+  downloadBtn.disabled = true;
+  resetBtn.disabled = true;
+  setStatus('');
+  hideSpinner();
+});
+
+downloadBtn.addEventListener('click', () => {
+  if(!resultDataUrl) return;
+  const link = document.createElement('a');
+  link.download = 'coloring-page.png';
+  link.href = resultDataUrl;
+  link.click();
+});
+
+// ---------- 오프라인 폴백 (DoG 기반 선그림 변환) ----------
+async function fallbackOffline(file){
+  showSpinner('오프라인 방식으로 만드는 중...');
+  try{
+    const dataUrl = await readAsDataURL(file);
+    const img = await loadImage(dataUrl);
+    const { w, h } = drawToWorkCanvas(img, 600);
+    const outUrl = processOffline(w, h);
+    hideSpinner();
+    showResult(outUrl, 'offline');
+  }catch(err){
+    hideSpinner();
+    setStatus('오프라인 변환도 실패했어요. 다른 사진으로 시도해주세요.', 'error');
+    console.error(err);
+  }
+}
+
+function readAsDataURL(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+function loadImage(src){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+function drawToWorkCanvas(img, maxDim){
+  let w = img.width, h = img.height;
+  const scale = Math.min(1, maxDim / Math.max(w, h));
+  w = Math.round(w * scale); h = Math.round(h * scale);
+  workCanvas.width = w; workCanvas.height = h;
+  workCanvas.getContext('2d').drawImage(img, 0, 0, w, h);
+  return { w, h };
+}
+
+function processOffline(w, h){
+  const ctx = workCanvas.getContext('2d');
+  const imageData = ctx.getImageData(0, 0, w, h);
+  const gray = toGrayscale(imageData, w, h);
+  const mag = dogEdges(gray, w, h, 3.6);
+  const bin = threshold(mag, w, h, 45);
+  const closed = erode(dilate(bin, w, h, 1), w, h, 1);
+  const finalMask = dilate(closed, w, h, 1);
+  const outData = toImageData(finalMask, w, h);
+  workCanvas.getContext('2d').putImageData(outData, 0, 0);
+  return workCanvas.toDataURL('image/png');
+}
+
+function toGrayscale(imageData, w, h){
+  const { data } = imageData;
+  const gray = new Float32Array(w*h);
+  for(let i=0;i<w*h;i++){
+    gray[i] = 0.299*data[i*4] + 0.587*data[i*4+1] + 0.114*data[i*4+2];
+  }
+  return gray;
+}
+function boxBlurRadius(src, w, h, radius){
+  if(radius <= 0) return src;
+  const temp = new Float32Array(w*h);
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+    let sum=0, count=0;
+    for(let dx=-radius; dx<=radius; dx++){
+      const nx=x+dx;
+      if(nx>=0 && nx<w){ sum+=src[y*w+nx]; count++; }
+    }
+    temp[y*w+x]=sum/count;
+  }
+  const out = new Float32Array(w*h);
+  for(let x=0;x<w;x++) for(let y=0;y<h;y++){
+    let sum=0, count=0;
+    for(let dy=-radius; dy<=radius; dy++){
+      const ny=y+dy;
+      if(ny>=0 && ny<h){ sum+=temp[ny*w+x]; count++; }
+    }
+    out[y*w+x]=sum/count;
+  }
+  return out;
+}
+function gaussApprox(gray, w, h, sigma){
+  const radius = Math.max(1, Math.round(sigma));
+  let result = gray;
+  for(let p=0;p<3;p++) result = boxBlurRadius(result, w, h, radius);
+  return result;
+}
+function dogEdges(gray, w, h, sigma){
+  const k = 1.6;
+  const g1 = gaussApprox(gray, w, h, sigma);
+  const g2 = gaussApprox(gray, w, h, sigma*k);
+  const mag = new Float32Array(w*h);
+  for(let i=0;i<w*h;i++) mag[i] = Math.abs(g1[i]-g2[i]);
+  return mag;
+}
+function threshold(mag, w, h, threshPercent){
+  const bin = new Uint8ClampedArray(w*h);
+  let max=0;
+  for(let i=0;i<mag.length;i++) if(mag[i]>max) max=mag[i];
+  if(max===0) max=1;
+  const cutoff=(threshPercent/100)*max;
+  for(let i=0;i<mag.length;i++) bin[i] = mag[i]>cutoff ? 1:0;
+  return bin;
+}
+function dilate(bin, w, h, iterations){
+  let cur = bin;
+  for(let it=0; it<iterations; it++){
+    const next = new Uint8ClampedArray(w*h);
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+      let v=0;
+      for(let dy=-1; dy<=1 && !v; dy++) for(let dx=-1; dx<=1 && !v; dx++){
+        const nx=x+dx, ny=y+dy;
+        if(nx>=0&&nx<w&&ny>=0&&ny<h&&cur[ny*w+nx]) v=1;
+      }
+      next[y*w+x]=v;
+    }
+    cur=next;
+  }
+  return cur;
+}
+function erode(bin, w, h, iterations){
+  let cur = bin;
+  for(let it=0; it<iterations; it++){
+    const next = new Uint8ClampedArray(w*h);
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+      let v=1;
+      for(let dy=-1; dy<=1 && v; dy++) for(let dx=-1; dx<=1 && v; dx++){
+        const nx=x+dx, ny=y+dy;
+        if(nx<0||nx>=w||ny<0||ny>=h||!cur[ny*w+nx]) v=0;
+      }
+      next[y*w+x]=v;
+    }
+    cur=next;
+  }
+  return cur;
+}
+function toImageData(bin, w, h){
+  const data = new Uint8ClampedArray(w*h*4);
+  for(let i=0;i<w*h;i++){
+    const v = bin[i] ? 0 : 255;
+    data[i*4]=v; data[i*4+1]=v; data[i*4+2]=v; data[i*4+3]=255;
+  }
+  return new ImageData(data, w, h);
+}
+</script>
+</body>
+</html>
