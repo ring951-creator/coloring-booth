@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>뉴트로 사진관 — 컬러링 페이지 만들기</title>
+<title>(AI) 빛을 담은 뉴트로 사진관 — 컬러링 페이지 만들기</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
 
@@ -62,36 +62,99 @@
   .badge.ai{ background:#1b3a6b; color:#fdf8ed; }
   .badge.offline{ background:#f2c14e; color:#3a2c0a; }
   footer{ text-align:center; color: #7c8aa5; font-size: 12px; margin-top: 24px; }
+  .hidden{ display:none !important; }
+
+  /* 랜딩(입장하기) 화면 */
+  .landing{ text-align:center; padding:30px 10px; }
+  .landing p{ font-size:13.5px; color:#6b6250; margin:0 0 22px; }
+  .btn.enter{ padding:14px 40px; font-size:15px; }
+
+  /* 카메라 촬영 화면 */
+  .camera-frame{
+    position:relative; width:100%; max-width:420px; margin:0 auto;
+    aspect-ratio:3/4; border-radius:14px; overflow:hidden; background:#111;
+  }
+  .camera-frame video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .camera-frame .oval-guide{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-52%);
+    width:62%; height:78%; border:3px dashed var(--sun); border-radius:50%;
+    pointer-events:none;
+  }
+  .camera-frame .guide-label{
+    position:absolute; bottom:14px; left:50%; transform:translateX(-50%);
+    background:rgba(255,255,255,0.92); color:var(--navy); font-size:12.5px;
+    padding:6px 14px; border-radius:20px; white-space:nowrap;
+  }
+  .capture-heading{ text-align:center; margin:20px 0 6px; }
+  .capture-heading h2{ font-family:'Playfair Display', serif; font-size:19px; margin:0 0 6px; color:var(--navy); }
+  .capture-heading p{ font-size:12.5px; color:#6b6250; margin:0; line-height:1.6; }
+  .capture-btns{ display:flex; flex-direction:column; gap:10px; margin-top:18px; align-items:center; }
+  .capture-btns .btn{ width:100%; max-width:340px; justify-content:center; padding:13px; font-size:14.5px; }
+  .capture-btns .btn-row{ width:100%; max-width:340px; }
+  .capture-btns .btn-row .btn{ flex:1; }
+  .back-link{
+    display:block; text-align:center; margin-top:14px; font-size:13px; color:#8a8265;
+    background:none; border:none; cursor:pointer; text-decoration:underline;
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="eyebrow">Cyanotype Portrait · Coloring Page</div>
-    <h1>뉴트로 사진관</h1>
+    <div class="eyebrow">AI Experience Zone</div>
+    <h1>(AI) 빛을 담은 뉴트로 사진관</h1>
     <p class="sub">사진을 찍으면 AI가 컬러링 페이지로 다시 그려드려요</p>
   </header>
 
   <div class="card">
-    <div class="upload-zone">
-      <p>얼굴 사진을 선택하거나 바로 촬영하세요</p>
-      <div class="btn-row">
-        <label class="btn" for="fileInput">사진 선택 / 촬영</label>
+
+    <!-- 랜딩: 입장하기 -->
+    <div id="stepLanding" class="landing">
+      <p>얼굴 사진 한 장으로, AI가 컬러링 페이지를 만들어드려요</p>
+      <button class="btn enter" id="enterBtn">입장하기</button>
+    </div>
+
+    <!-- 카메라 촬영 화면 -->
+    <div id="stepCapture" class="hidden">
+      <div class="camera-frame">
+        <video id="cameraVideo" autoplay playsinline muted></video>
+        <div class="oval-guide"></div>
+        <div class="guide-label">가이드 안에 인물을 배치해주세요</div>
       </div>
-      <input type="file" id="fileInput" accept="image/*">
+
+      <div class="capture-heading">
+        <h2>인물 촬영 및 업로드</h2>
+        <p>현재 전면(본인) 카메라가 켜져 있습니다.<br>바로 촬영하거나 사진 파일을 직접 올릴 수 있습니다.</p>
+      </div>
+
+      <p class="status" id="captureStatus"></p>
+
+      <div class="capture-btns">
+        <button class="btn" id="captureBtn">📷 사진 촬영</button>
+        <div class="btn-row">
+          <button class="btn secondary" id="switchCamBtn">🔄 카메라 전환</button>
+          <button class="btn secondary" id="uploadBtn">⬆️ 사진 업로드</button>
+        </div>
+        <button class="back-link" id="backBtn">이전으로</button>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" class="hidden">
     </div>
 
-    <div class="spinner" id="spinner"><div class="ring"></div><span id="spinnerLabel">AI가 그림을 그리는 중... (10~20초 정도 걸려요)</span></div>
+    <!-- 결과 화면 -->
+    <div id="stepResult" class="hidden">
+      <div class="spinner" id="spinner"><div class="ring"></div><span id="spinnerLabel">AI가 그림을 그리는 중... (10~20초 정도 걸려요)</span></div>
 
-    <div class="preview-frame" id="previewFrame">
-      <p class="placeholder" id="placeholder">사진을 선택하면 여기에 결과가 나타나요</p>
-    </div>
+      <div class="preview-frame" id="previewFrame">
+        <p class="placeholder" id="placeholder">사진을 선택하면 여기에 결과가 나타나요</p>
+      </div>
 
-    <p class="status" id="statusText"></p>
+      <p class="status" id="statusText"></p>
 
-    <div class="btn-row" style="margin-top:18px;">
-      <button class="btn" id="downloadBtn" disabled>다운로드</button>
-      <button class="btn secondary" id="resetBtn" disabled>다시 선택</button>
+      <div class="btn-row" style="margin-top:18px;">
+        <button class="btn" id="downloadBtn" disabled>다운로드</button>
+        <button class="btn secondary" id="sendBtn" disabled>노트북으로 전송</button>
+        <button class="btn secondary" id="resetBtn" disabled>다시 선택</button>
+      </div>
     </div>
   </div>
 
@@ -100,6 +163,7 @@
 
 <canvas id="workCanvas" style="display:none;"></canvas>
 
+<script src="camera-capture.js"></script>
 <script>
 const fileInput = document.getElementById('fileInput');
 const previewFrame = document.getElementById('previewFrame');
@@ -108,14 +172,58 @@ const spinner = document.getElementById('spinner');
 const spinnerLabel = document.getElementById('spinnerLabel');
 const statusText = document.getElementById('statusText');
 const downloadBtn = document.getElementById('downloadBtn');
+const sendBtn = document.getElementById('sendBtn');
 const resetBtn = document.getElementById('resetBtn');
 const workCanvas = document.getElementById('workCanvas');
 
+const stepLanding = document.getElementById('stepLanding');
+const stepCapture = document.getElementById('stepCapture');
+const stepResult = document.getElementById('stepResult');
+const enterBtn = document.getElementById('enterBtn');
+const backBtn = document.getElementById('backBtn');
+const captureStatus = document.getElementById('captureStatus');
+
 let resultDataUrl = null;
+
+function goToStep(step){
+  stepLanding.classList.toggle('hidden', step !== 'landing');
+  stepCapture.classList.toggle('hidden', step !== 'capture');
+  stepResult.classList.toggle('hidden', step !== 'result');
+}
+
+const camera = createCameraCapture({
+  videoEl: document.getElementById('cameraVideo'),
+  statusEl: captureStatus,
+  captureBtn: document.getElementById('captureBtn'),
+  switchBtn: document.getElementById('switchCamBtn'),
+  uploadBtn: document.getElementById('uploadBtn'),
+  uploadInput: fileInput,
+  backBtn: backBtn,
+  onCaptured: (file) => {
+    camera.stop();
+    goToStep('result');
+    handlePhoto(file);
+  },
+  onBack: () => goToStep('landing')
+});
+
+enterBtn.addEventListener('click', () => {
+  goToStep('capture');
+  camera.start();
+});
 
 function setStatus(msg, level){
   statusText.textContent = msg || '';
   statusText.className = 'status' + (level ? ' ' + level : '');
+}
+
+// 결과를 노트북의 인쇄 대기열 화면으로 자동 전송 (실패해도 조용히 무시)
+function sendToPrintQueue(dataUrl){
+  fetch('/api/print-queue', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imageDataUrl: dataUrl })
+  }).catch(err => console.warn('인쇄 대기열 전송 실패(무시 가능):', err));
 }
 function showSpinner(label){
   spinner.classList.add('active');
@@ -141,6 +249,8 @@ function showResult(dataUrl, badgeType){
   wrap.appendChild(img);
   previewFrame.appendChild(wrap);
   downloadBtn.disabled = false;
+  sendBtn.disabled = false;
+  sendBtn.textContent = '노트북으로 전송';
   resetBtn.disabled = false;
 }
 
@@ -170,10 +280,7 @@ function resizeImageFile(file, maxDim, quality){
   });
 }
 
-fileInput.addEventListener('change', async (e) => {
-  const rawFile = e.target.files[0];
-  if(!rawFile) return;
-
+async function handlePhoto(rawFile){
   setStatus('');
   showSpinner('AI가 그림을 그리는 중... (10~20초 정도 걸려요)');
 
@@ -205,16 +312,18 @@ fileInput.addEventListener('change', async (e) => {
     setStatus('AI 서버에 연결하지 못했어요 — 오프라인 방식으로 다시 시도할게요', 'warn');
     await fallbackOffline(rawFile);
   }
-});
+}
 
 resetBtn.addEventListener('click', () => {
   fileInput.value = '';
   resultDataUrl = null;
   previewFrame.innerHTML = '<p class="placeholder" id="placeholder">사진을 선택하면 여기에 결과가 나타나요</p>';
   downloadBtn.disabled = true;
+  sendBtn.disabled = true;
   resetBtn.disabled = true;
   setStatus('');
   hideSpinner();
+  goToStep('landing');
 });
 
 downloadBtn.addEventListener('click', () => {
@@ -223,6 +332,13 @@ downloadBtn.addEventListener('click', () => {
   link.download = 'coloring-page.png';
   link.href = resultDataUrl;
   link.click();
+});
+
+sendBtn.addEventListener('click', () => {
+  if(!resultDataUrl) return;
+  sendToPrintQueue(resultDataUrl);
+  sendBtn.textContent = '전송됨! ✓';
+  setTimeout(() => { sendBtn.textContent = '노트북으로 전송'; }, 2000);
 });
 
 // ---------- 오프라인 폴백 (DoG 기반 선그림 변환) ----------
