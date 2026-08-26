@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인쇄 대기열 — 뉴트로 사진관</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
+  :root{
+    --navy:#0f2540; --prussian:#1b3a6b; --paper:#fdf8ed; --paper-dim:#f2ead6;
+    --sun:#f2c14e; --ink:#1a1a1a; --line:#cdbfa0;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; min-height:100vh; background:var(--navy);
+    font-family:'Noto Sans KR', sans-serif; color:var(--ink); padding:28px 20px 60px;
+  }
+  header{ text-align:center; color:var(--paper); margin-bottom:22px; }
+  .eyebrow{ font-size:12px; letter-spacing:0.25em; color:var(--sun); text-transform:uppercase; margin-bottom:8px; }
+  h1{ font-family:'Playfair Display', serif; font-size:28px; margin:0 0 6px; font-weight:700; }
+  .sub{ color:#c9d4e6; font-size:13px; margin:0; }
+  .status-bar{
+    max-width:900px; margin:0 auto 20px; background:var(--paper); border:1px solid var(--line);
+    border-radius:4px; padding:12px 18px; display:flex; justify-content:space-between; align-items:center;
+    font-size:13px; color:var(--navy);
+  }
+  .status-bar .dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:#3aa35a; margin-right:6px; }
+  .grid{
+    max-width:900px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:16px;
+  }
+  .card{
+    background:var(--paper); border:1px solid var(--line); border-radius:6px; overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25); animation: pop 0.3s ease;
+  }
+  @keyframes pop{ from{ transform:scale(0.9); opacity:0; } to{ transform:scale(1); opacity:1; } }
+  .card img{ width:100%; display:block; background:white; }
+  .card .card-footer{ padding:10px; display:flex; gap:8px; align-items:center; justify-content:space-between; }
+  .card .time{ font-size:11px; color:#8a8265; }
+  .btn{
+    background:var(--prussian); color:var(--paper); border:none; padding:8px 14px; border-radius:3px;
+    font-size:13px; font-weight:500; cursor:pointer;
+  }
+  .btn:hover{ background:var(--navy); }
+  .btn.done{ background:#3aa35a; }
+  .empty{ text-align:center; color:#8b96ab; font-size:14px; margin-top:60px; }
+
+  /* 인쇄될 때는 이 페이지 구조를 다 숨기고, printArea만 보이게 함 */
+  #printArea{ display:none; }
+  @media print{
+    body *{ visibility:hidden; }
+    #printArea, #printArea *{ visibility:visible; }
+    #printArea{ display:block; position:fixed; top:0; left:0; width:100%; }
+    #printArea img{ width:100%; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">Print Queue</div>
+    <h1>인쇄 대기열</h1>
+    <p class="sub">태블릿에서 결과가 나오면 여기에 자동으로 도착해요</p>
+  </header>
+
+  <div class="status-bar">
+    <span><span class="dot"></span>실시간 확인 중...</span>
+    <span id="countText">받은 이미지: 0장</span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <p class="empty" id="emptyMsg">아직 도착한 이미지가 없어요. 태블릿에서 사진을 찍어보세요.</p>
+
+  <div id="printArea"><img id="printImg" alt="인쇄할 이미지"></div>
+
+<script>
+const grid = document.getElementById('grid');
+const emptyMsg = document.getElementById('emptyMsg');
+const countText = document.getElementById('countText');
+const printImg = document.getElementById('printImg');
+
+let lastId = 0;
+let count = 0;
+
+function formatTime(ts){
+  const d = new Date(ts);
+  return d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+function addCard(item){
+  emptyMsg.style.display = 'none';
+  count++;
+  countText.textContent = `받은 이미지: ${count}장`;
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <img src="${item.image}" alt="결과">
+    <div class="card-footer">
+      <span class="time">${formatTime(item.createdAt)}</span>
+      <button class="btn">인쇄하기</button>
+    </div>
+  `;
+  const btn = card.querySelector('button');
+  btn.addEventListener('click', () => {
+    printImg.src = item.image;
+    setTimeout(() => {
+      window.print();
+      btn.textContent = '인쇄 완료';
+      btn.classList.add('done');
+    }, 100);
+  });
+
+  grid.prepend(card); // 최신 항목이 맨 위로
+}
+
+async function poll(){
+  try{
+    const res = await fetch(`/api/print-queue?since=${lastId}`);
+    const data = await res.json();
+    if(data.items && data.items.length > 0){
+      data.items.forEach(addCard);
+    }
+    if(typeof data.latestId === 'number'){
+      lastId = data.latestId;
+    }
+  }catch(err){
+    console.error('polling 오류:', err);
+  }
+}
+
+poll();
+setInterval(poll, 3000);
+</script>
+</body>
+</html>
