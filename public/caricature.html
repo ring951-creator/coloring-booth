@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>뉴트로 사진관 — 캐리커처 만들기</title>
+<title>(AI) 빛을 담은 뉴트로 사진관 — 사진관 입장하기</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
   :root{
@@ -50,9 +50,25 @@
   .variant-card.selected{ border-color:var(--sun); box-shadow:0 0 0 3px rgba(242,193,78,0.5); }
   .variant-card img{ width:100%; display:block; aspect-ratio:1/1; object-fit:cover; }
   .variant-card .label{ text-align:center; font-size:12.5px; padding:8px; color:var(--navy); font-weight:500; }
-  .variant-card.style-pick{ display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px 12px; gap:8px; aspect-ratio:1/1; }
-  .variant-card.style-pick .emoji{ font-size:36px; }
-  .variant-card.style-pick .label{ font-size:14px; padding:0; }
+  .variant-card.style-pick{ display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px 12px; gap:10px; aspect-ratio:1/1; }
+  .variant-card.style-pick .emoji{ font-size:52px; }
+  .variant-card.style-pick .label{ font-size:18px; font-weight:700; padding:0; }
+
+  .gender-row{ display:flex; gap:10px; margin-bottom:20px; }
+  .gender-btn{
+    flex:1; padding:14px; border-radius:6px; border:2px solid var(--line); background:var(--paper-dim);
+    font-size:15px; font-weight:600; color:var(--navy); cursor:pointer; transition:all 0.15s ease;
+  }
+  .gender-btn:hover{ border-color:var(--prussian); }
+  .gender-btn.selected{ border-color:var(--sun); background:#fff8e6; box-shadow:0 0 0 3px rgba(242,193,78,0.35); }
+
+  .extra-count{ font-weight:400; color:#8a8265; font-size:12px; margin-left:auto; }
+  .extra-request-input{
+    width:100%; min-height:64px; border:1px solid var(--line); border-radius:4px; background:var(--paper-dim);
+    padding:12px 14px; font-family:'Noto Sans KR', sans-serif; font-size:14px; color:var(--ink);
+    resize:vertical; margin-bottom:20px; box-sizing:border-box;
+  }
+  .extra-request-input:focus{ outline:none; border-color:var(--prussian); }
 
   .controls{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:18px; margin:18px 0; }
   .control{ background:var(--paper-dim); border-radius:4px; padding:12px 14px; }
@@ -65,34 +81,96 @@
   .placeholder{ color:#9c937d; font-size:13px; text-align:center; }
   footer{ text-align:center; color:#7c8aa5; font-size:12px; margin-top:24px; }
   .hidden{ display:none !important; }
+
+  /* 랜딩(입장하기) 화면 */
+  .landing{ text-align:center; padding:30px 10px; }
+  .landing p{ font-size:13.5px; color:#6b6250; margin:0 0 22px; }
+  .btn.enter{ padding:14px 40px; font-size:15px; }
+
+  /* 카메라 촬영 화면 */
+  .camera-frame{
+    position:relative; width:100%; max-width:420px; margin:0 auto;
+    aspect-ratio:3/4; border-radius:14px; overflow:hidden; background:#111;
+  }
+  .camera-frame video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .camera-frame .oval-guide{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-52%);
+    width:62%; height:78%; border:3px dashed var(--sun); border-radius:50%;
+    pointer-events:none;
+  }
+  .camera-frame .guide-label{
+    position:absolute; bottom:14px; left:50%; transform:translateX(-50%);
+    background:rgba(255,255,255,0.92); color:var(--navy); font-size:12.5px;
+    padding:6px 14px; border-radius:20px; white-space:nowrap;
+  }
+  .capture-heading{ text-align:center; margin:20px 0 6px; }
+  .capture-heading h2{ font-family:'Playfair Display', serif; font-size:19px; margin:0 0 6px; color:var(--navy); }
+  .capture-heading p{ font-size:12.5px; color:#6b6250; margin:0; line-height:1.6; }
+  .capture-btns{ display:flex; flex-direction:column; gap:10px; margin-top:18px; align-items:center; }
+  .capture-btns .btn{ width:100%; max-width:340px; justify-content:center; padding:13px; font-size:14.5px; }
+  .capture-btns .btn-row{ width:100%; max-width:340px; }
+  .capture-btns .btn-row .btn{ flex:1; }
+  .back-link{
+    display:block; text-align:center; margin-top:14px; font-size:13px; color:#8a8265;
+    background:none; border:none; cursor:pointer; text-decoration:underline;
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="eyebrow">AI Caricature → Cyanotype Line Art</div>
-    <h1>뉴트로 사진관</h1>
+    <div class="eyebrow">AI Experience Zone</div>
+    <h1>(AI) 빛을 담은 뉴트로 사진관</h1>
     <p class="sub">사진을 찍으면 AI가 4가지 캐리커처로 그려드려요, 마음에 드는 걸 골라 선그림으로 바꿔보세요</p>
   </header>
 
   <div class="card">
 
-    <!-- STEP 1: 업로드 -->
-    <div id="stepUpload">
-      <div class="step-label">1. 사진 넣기</div>
-      <div class="upload-zone">
-        <p>얼굴 사진을 선택하거나 바로 촬영하세요</p>
-        <div class="btn-row">
-          <label class="btn" for="fileInput">사진 선택 / 촬영</label>
-        </div>
-        <input type="file" id="fileInput" accept="image/*">
+    <!-- 랜딩: 입장하기 -->
+    <div id="stepLanding" class="landing">
+      <p>얼굴 사진 한 장으로, AI가 4가지 캐리커처를 그려드려요</p>
+      <button class="btn enter" id="enterBtn">입장하기</button>
+    </div>
+
+    <!-- 카메라 촬영 화면 -->
+    <div id="stepCapture" class="hidden">
+      <div class="camera-frame">
+        <video id="cameraVideo" autoplay playsinline muted></video>
+        <div class="oval-guide"></div>
+        <div class="guide-label">가이드 안에 인물을 배치해주세요</div>
       </div>
-      <p class="status" id="statusText1"></p>
+
+      <div class="capture-heading">
+        <h2>인물 촬영 및 업로드</h2>
+        <p>현재 전면(본인) 카메라가 켜져 있습니다.<br>바로 촬영하거나 사진 파일을 직접 올릴 수 있습니다.</p>
+      </div>
+
+      <p class="status" id="captureStatus"></p>
+
+      <div class="capture-btns">
+        <button class="btn" id="captureBtn">📷 사진 촬영</button>
+        <div class="btn-row">
+          <button class="btn secondary" id="switchCamBtn">🔄 카메라 전환</button>
+          <button class="btn secondary" id="uploadBtn">⬆️ 사진 업로드</button>
+        </div>
+        <button class="back-link" id="backBtn">이전으로</button>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" class="hidden">
     </div>
 
     <!-- STEP 2: 스타일 선택 -->
     <div id="stepChoose" class="hidden">
-      <div class="step-label">2. 원하는 스타일 고르기 (고르면 그때 AI가 그려요)</div>
+      <div class="step-label">성별 선택 (필수)</div>
+      <div class="gender-row">
+        <button type="button" class="gender-btn" id="genderMaleBtn" data-gender="male">🧑 남성</button>
+        <button type="button" class="gender-btn" id="genderFemaleBtn" data-gender="female">👩 여성</button>
+      </div>
+
+      <div class="step-label">추가 요구사항 입력 (선택사항) <span id="extraCount" class="extra-count">0/100</span></div>
+      <textarea id="extraRequestInput" class="extra-request-input" maxlength="100"
+        placeholder="예: 안경을 그려줘, 머리에 왕관을 씌워줘, 환하게 미소 짓게 해줘"></textarea>
+
+      <div class="step-label">원하는 스타일 고르기 (고르면 그때 AI가 그려요)</div>
       <div class="variant-grid" id="variantGrid"></div>
       <div class="spinner" id="spinnerGen"><div class="ring"></div><span>AI가 그리는 중... (10~20초 정도 걸려요)</span></div>
       <p class="status" id="statusText2"></p>
@@ -152,6 +230,7 @@
 
       <div class="btn-row" style="margin-top:18px;">
         <button class="btn" id="downloadBtn">다운로드</button>
+        <button class="btn secondary" id="sendBtn">노트북으로 전송</button>
         <button class="btn secondary" id="backToChooseBtn">다른 스타일 고르기</button>
         <button class="btn secondary" id="restartBtn2">처음부터 다시</button>
       </div>
@@ -164,19 +243,42 @@
 
 <canvas id="workCanvas" style="display:none;"></canvas>
 
+<script src="camera-capture.js"></script>
 <script>
 const fileInput = document.getElementById('fileInput');
 const spinnerGen = document.getElementById('spinnerGen');
-const statusText1 = document.getElementById('statusText1');
-const stepUpload = document.getElementById('stepUpload');
+const statusText2 = document.getElementById('statusText2');
+const stepLanding = document.getElementById('stepLanding');
+const stepCapture = document.getElementById('stepCapture');
 const stepChoose = document.getElementById('stepChoose');
 const stepPreview = document.getElementById('stepPreview');
 const stepBW = document.getElementById('stepBW');
+const enterBtn = document.getElementById('enterBtn');
+const backBtn = document.getElementById('backBtn');
+const captureStatus = document.getElementById('captureStatus');
 const previewColorImg = document.getElementById('previewColorImg');
 const toBwBtn = document.getElementById('toBwBtn');
 const backToChooseBtn2 = document.getElementById('backToChooseBtn2');
 const restartBtn3 = document.getElementById('restartBtn3');
 const variantGrid = document.getElementById('variantGrid');
+const genderMaleBtn = document.getElementById('genderMaleBtn');
+const genderFemaleBtn = document.getElementById('genderFemaleBtn');
+const extraRequestInput = document.getElementById('extraRequestInput');
+const extraCount = document.getElementById('extraCount');
+let selectedGender = null;
+
+[genderMaleBtn, genderFemaleBtn].forEach(btn => {
+  btn.addEventListener('click', () => {
+    selectedGender = btn.dataset.gender;
+    genderMaleBtn.classList.toggle('selected', selectedGender === 'male');
+    genderFemaleBtn.classList.toggle('selected', selectedGender === 'female');
+    setStatus2('');
+  });
+});
+
+extraRequestInput.addEventListener('input', () => {
+  extraCount.textContent = `${extraRequestInput.value.length}/100`;
+});
 const restartBtn = document.getElementById('restartBtn');
 const restartBtn2 = document.getElementById('restartBtn2');
 const backToChooseBtn = document.getElementById('backToChooseBtn');
@@ -189,6 +291,7 @@ const thickVal = document.getElementById('thickVal');
 const outputCanvas = document.getElementById('outputCanvas');
 const workCanvas = document.getElementById('workCanvas');
 const downloadBtn = document.getElementById('downloadBtn');
+const sendBtn = document.getElementById('sendBtn');
 const spinnerInk = document.getElementById('spinnerInk');
 const statusText3 = document.getElementById('statusText3');
 const inkResultWrap = document.getElementById('inkResultWrap');
@@ -209,16 +312,13 @@ const CARICATURE_STYLES = [
   { id: 'pencil-sketch', label: '색연필 스케치', emoji: '✏️' }
 ];
 
-function setStatus1(msg, level){
-  statusText1.textContent = msg || '';
-  statusText1.className = 'status' + (level ? ' ' + level : '');
-}
 function setStatus2(msg, level){
   statusText2.textContent = msg || '';
   statusText2.className = 'status' + (level ? ' ' + level : '');
 }
 function goToStep(step){
-  stepUpload.classList.toggle('hidden', step !== 'upload');
+  stepLanding.classList.toggle('hidden', step !== 'landing');
+  stepCapture.classList.toggle('hidden', step !== 'capture');
   stepChoose.classList.toggle('hidden', step !== 'choose');
   stepPreview.classList.toggle('hidden', step !== 'preview');
   stepBW.classList.toggle('hidden', step !== 'bw');
@@ -250,19 +350,31 @@ function resizeImageFile(file, maxDim, quality){
   });
 }
 
-// 1단계: 사진은 저장만 해두고, 바로 스타일 선택 화면으로 이동 (아직 AI 호출 안 함)
-fileInput.addEventListener('change', async (e) => {
-  const rawFile = e.target.files[0];
-  if(!rawFile) return;
-  setStatus1('');
-  try{
-    selectedFile = await resizeImageFile(rawFile, 1024, 0.85);
-  }catch(err){
-    console.error(err);
-    selectedFile = rawFile; // 압축 실패해도 원본으로 진행 시도
-  }
-  renderStylePicker();
-  goToStep('choose');
+const camera = createCameraCapture({
+  videoEl: document.getElementById('cameraVideo'),
+  statusEl: captureStatus,
+  captureBtn: document.getElementById('captureBtn'),
+  switchBtn: document.getElementById('switchCamBtn'),
+  uploadBtn: document.getElementById('uploadBtn'),
+  uploadInput: fileInput,
+  backBtn: backBtn,
+  onCaptured: async (rawFile) => {
+    camera.stop();
+    try{
+      selectedFile = await resizeImageFile(rawFile, 1024, 0.85);
+    }catch(err){
+      console.error(err);
+      selectedFile = rawFile; // 압축 실패해도 원본으로 진행 시도
+    }
+    renderStylePicker();
+    goToStep('choose');
+  },
+  onBack: () => goToStep('landing')
+});
+
+enterBtn.addEventListener('click', () => {
+  goToStep('capture');
+  camera.start();
 });
 
 function renderStylePicker(){
@@ -279,6 +391,10 @@ function renderStylePicker(){
 
 // 2단계: 스타일 하나를 고르면, 그 스타일 "하나만" AI에게 요청
 async function generateStyle(style, cardEl){
+  if(!selectedGender){
+    setStatus2('성별을 먼저 선택해주세요.', 'warn');
+    return;
+  }
   document.querySelectorAll('.variant-card').forEach(c => c.classList.remove('selected'));
   cardEl.classList.add('selected');
   setStatus2('');
@@ -288,6 +404,8 @@ async function generateStyle(style, cardEl){
     const formData = new FormData();
     formData.append('photo', selectedFile);
     formData.append('style', style.id);
+    formData.append('gender', selectedGender);
+    formData.append('extraRequest', extraRequestInput.value.trim());
     const res = await fetch('/api/caricature', { method: 'POST', body: formData });
     const data = await res.json();
 
@@ -376,8 +494,12 @@ function resetAll(){
   fileInput.value = '';
   selectedFile = null;
   selectedImage = null;
-  setStatus1('');
-  goToStep('upload');
+  selectedGender = null;
+  extraRequestInput.value = '';
+  extraCount.textContent = '0/100';
+  genderMaleBtn.classList.remove('selected');
+  genderFemaleBtn.classList.remove('selected');
+  goToStep('landing');
 }
 
 // ---------- 흑백 선그림 변환 (기존 오프라인 DoG 알고리즘 재사용) ----------
@@ -424,6 +546,24 @@ downloadBtn.addEventListener('click', () => {
   }
   link.click();
 });
+
+sendBtn.addEventListener('click', () => {
+  const finalDataUrl = currentResultMode === 'ai'
+    ? inkResultImg.src
+    : outputCanvas.toDataURL('image/png');
+  sendToPrintQueue(finalDataUrl);
+  sendBtn.textContent = '전송됨! ✓';
+  setTimeout(() => { sendBtn.textContent = '노트북으로 전송'; }, 2000);
+});
+
+// 결과를 노트북의 인쇄 대기열 화면으로 전송 (실패해도 조용히 무시)
+function sendToPrintQueue(dataUrl){
+  fetch('/api/print-queue', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imageDataUrl: dataUrl })
+  }).catch(err => console.warn('인쇄 대기열 전송 실패(무시 가능):', err));
+}
 
 function loadImage(src){
   return new Promise((resolve, reject) => {
