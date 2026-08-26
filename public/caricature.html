@@ -101,6 +101,19 @@
       </div>
     </div>
 
+    <!-- STEP 2.5: 컬러 캐리커처 미리보기 -->
+    <div id="stepPreview" class="hidden">
+      <div class="step-label">완성된 캐리커처예요!</div>
+      <div class="preview-frame">
+        <img id="previewColorImg" class="selpreview" alt="캐리커처 결과">
+      </div>
+      <div class="btn-row" style="margin-top:18px;">
+        <button class="btn" id="toBwBtn">흑백으로 바꾸기</button>
+        <button class="btn secondary" id="backToChooseBtn2">다른 스타일 고르기</button>
+        <button class="btn secondary" id="restartBtn3">처음부터 다시</button>
+      </div>
+    </div>
+
     <!-- STEP 3: 흑백 변환 -->
     <div id="stepBW" class="hidden">
       <div class="step-label">3. 흑백 잉크 스타일로 바꾸기 (청사진용)</div>
@@ -157,7 +170,12 @@ const spinnerGen = document.getElementById('spinnerGen');
 const statusText1 = document.getElementById('statusText1');
 const stepUpload = document.getElementById('stepUpload');
 const stepChoose = document.getElementById('stepChoose');
+const stepPreview = document.getElementById('stepPreview');
 const stepBW = document.getElementById('stepBW');
+const previewColorImg = document.getElementById('previewColorImg');
+const toBwBtn = document.getElementById('toBwBtn');
+const backToChooseBtn2 = document.getElementById('backToChooseBtn2');
+const restartBtn3 = document.getElementById('restartBtn3');
 const variantGrid = document.getElementById('variantGrid');
 const restartBtn = document.getElementById('restartBtn');
 const restartBtn2 = document.getElementById('restartBtn2');
@@ -202,6 +220,7 @@ function setStatus2(msg, level){
 function goToStep(step){
   stepUpload.classList.toggle('hidden', step !== 'upload');
   stepChoose.classList.toggle('hidden', step !== 'choose');
+  stepPreview.classList.toggle('hidden', step !== 'preview');
   stepBW.classList.toggle('hidden', step !== 'bw');
 }
 
@@ -276,8 +295,8 @@ async function generateStyle(style, cardEl){
 
     if(res.ok && data.image){
       selectedImage = data.image;
-      goToStep('bw');
-      runAiInkConversion();
+      previewColorImg.src = data.image;
+      goToStep('preview');
       return;
     }
 
@@ -339,9 +358,18 @@ useOfflineInsteadBtn.addEventListener('click', () => {
 
 restartBtn.addEventListener('click', resetAll);
 restartBtn2.addEventListener('click', resetAll);
+restartBtn3.addEventListener('click', resetAll);
 backToChooseBtn.addEventListener('click', () => {
   renderStylePicker();
   goToStep('choose');
+});
+backToChooseBtn2.addEventListener('click', () => {
+  renderStylePicker();
+  goToStep('choose');
+});
+toBwBtn.addEventListener('click', () => {
+  goToStep('bw');
+  runAiInkConversion();
 });
 
 function resetAll(){
