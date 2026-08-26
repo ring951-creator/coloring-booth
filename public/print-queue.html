@@ -46,11 +46,12 @@
 
   /* 인쇄될 때는 이 페이지 구조를 다 숨기고, printArea만 보이게 함 */
   #printArea{ display:none; }
+  @page{ size: A6; margin: 0; }
   @media print{
     body *{ visibility:hidden; }
     #printArea, #printArea *{ visibility:visible; }
-    #printArea{ display:block; position:fixed; top:0; left:0; width:100%; }
-    #printArea img{ width:100%; }
+    #printArea{ display:block; position:fixed; top:0; left:0; width:100%; height:100%; }
+    #printArea img{ width:100%; height:100%; object-fit:contain; }
   }
 </style>
 </head>

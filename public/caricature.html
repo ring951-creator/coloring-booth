@@ -22,23 +22,23 @@
   header{ text-align:center; color:var(--paper); margin-bottom:24px; }
   .eyebrow{ font-size:12px; letter-spacing:0.25em; color:var(--sun); text-transform:uppercase; margin-bottom:10px; }
   h1{ font-family:'Playfair Display', serif; font-size:clamp(26px,5vw,38px); margin:0 0 8px; font-weight:700; }
-  .sub{ color:#c9d4e6; font-size:14px; margin:0; }
+  .sub{ color:#c9d4e6; font-size:16px; margin:0; }
   .card{ background:var(--paper); border-radius:4px; padding:26px; box-shadow:0 20px 60px rgba(0,0,0,0.35); border:1px solid var(--line); }
-  .step-label{ font-family:'Playfair Display', serif; font-size:13px; color:var(--prussian); letter-spacing:0.08em; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+  .step-label{ font-family:'Playfair Display', serif; font-size:15px; color:var(--prussian); letter-spacing:0.08em; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
   .step-label::before{ content:''; width:18px; height:1px; background:var(--prussian); }
   .upload-zone{ border:2px dashed var(--line); border-radius:4px; padding:24px 16px; text-align:center; background:var(--paper-dim); margin-bottom:20px; }
-  .upload-zone p{ margin:0 0 14px; font-size:13px; color:#6b6250; }
+  .upload-zone p{ margin:0 0 14px; font-size:15px; color:#6b6250; }
   input[type=file]{ display:none; }
-  .btn{ display:inline-flex; align-items:center; gap:8px; background:var(--prussian); color:var(--paper); border:none; padding:12px 24px; border-radius:3px; font-size:14px; font-weight:500; cursor:pointer; }
+  .btn{ display:inline-flex; align-items:center; gap:8px; background:var(--prussian); color:var(--paper); border:none; padding:12px 24px; border-radius:3px; font-size:16px; font-weight:500; cursor:pointer; }
   .btn:hover{ background:var(--navy); }
   .btn:disabled{ background:#b9b2a0; cursor:not-allowed; }
   .btn.secondary{ background:transparent; color:var(--prussian); border:1px solid var(--prussian); }
   .btn.secondary:hover{ background:rgba(27,58,107,0.06); }
   .btn-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-  .status{ text-align:center; font-size:13px; color:#6b6250; margin:12px 0 0; min-height:18px; line-height:1.6; }
+  .status{ text-align:center; font-size:15px; color:#6b6250; margin:12px 0 0; min-height:18px; line-height:1.6; }
   .status.error{ color:#b0433a; font-weight:500; }
   .status.warn{ color:#8a6a1f; font-weight:500; }
-  .spinner{ display:none; flex-direction:column; align-items:center; gap:10px; color:#6b6250; font-size:13px; padding:30px 0; }
+  .spinner{ display:none; flex-direction:column; align-items:center; gap:10px; color:#6b6250; font-size:15px; padding:30px 0; }
   .spinner.active{ display:flex; }
   .spinner .ring{ width:30px; height:30px; border:3px solid var(--line); border-top-color:var(--prussian); border-radius:50%; animation:spin 0.8s linear infinite; }
   @keyframes spin{ to{ transform:rotate(360deg); } }
@@ -57,7 +57,7 @@
   .gender-row{ display:flex; gap:10px; margin-bottom:20px; }
   .gender-btn{
     flex:1; padding:14px; border-radius:6px; border:2px solid var(--line); background:var(--paper-dim);
-    font-size:15px; font-weight:600; color:var(--navy); cursor:pointer; transition:all 0.15s ease;
+    font-size:17px; font-weight:600; color:var(--navy); cursor:pointer; transition:all 0.15s ease;
   }
   .gender-btn:hover{ border-color:var(--prussian); }
   .gender-btn.selected{ border-color:var(--sun); background:#fff8e6; box-shadow:0 0 0 3px rgba(242,193,78,0.35); }
@@ -65,27 +65,27 @@
   .extra-count{ font-weight:400; color:#8a8265; font-size:12px; margin-left:auto; }
   .extra-request-input{
     width:100%; min-height:64px; border:1px solid var(--line); border-radius:4px; background:var(--paper-dim);
-    padding:12px 14px; font-family:'Noto Sans KR', sans-serif; font-size:14px; color:var(--ink);
+    padding:12px 14px; font-family:'Noto Sans KR', sans-serif; font-size:16px; color:var(--ink);
     resize:vertical; margin-bottom:20px; box-sizing:border-box;
   }
   .extra-request-input:focus{ outline:none; border-color:var(--prussian); }
 
   .controls{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:18px; margin:18px 0; }
   .control{ background:var(--paper-dim); border-radius:4px; padding:12px 14px; }
-  .control label{ display:flex; justify-content:space-between; font-size:12.5px; font-weight:500; margin-bottom:6px; color:var(--navy); }
+  .control label{ display:flex; justify-content:space-between; font-size:14px; font-weight:500; margin-bottom:6px; color:var(--navy); }
   .control label span.val{ color:var(--prussian); font-family:'Playfair Display', serif; }
   input[type=range]{ width:100%; accent-color:var(--prussian); }
 
   .preview-frame{ position:relative; background:repeating-conic-gradient(#e8e0cb 0% 25%, #f2ead6 0% 50%) 0 0/16px 16px; border:1px solid var(--line); border-radius:4px; padding:14px; display:flex; justify-content:center; align-items:center; min-height:220px; }
   canvas, img.selpreview{ max-width:100%; display:block; background:white; box-shadow:0 6px 20px rgba(0,0,0,0.15); }
-  .placeholder{ color:#9c937d; font-size:13px; text-align:center; }
+  .placeholder{ color:#9c937d; font-size:15px; text-align:center; }
   footer{ text-align:center; color:#7c8aa5; font-size:12px; margin-top:24px; }
   .hidden{ display:none !important; }
 
   /* 랜딩(입장하기) 화면 */
   .landing{ text-align:center; padding:30px 10px; }
-  .landing p{ font-size:13.5px; color:#6b6250; margin:0 0 22px; }
-  .btn.enter{ padding:14px 40px; font-size:15px; }
+  .landing p{ font-size:16px; color:#6b6250; margin:0 0 22px; }
+  .btn.enter{ padding:14px 40px; font-size:17px; }
 
   /* 카메라 촬영 화면 */
   .camera-frame{
@@ -100,18 +100,18 @@
   }
   .camera-frame .guide-label{
     position:absolute; bottom:14px; left:50%; transform:translateX(-50%);
-    background:rgba(255,255,255,0.92); color:var(--navy); font-size:12.5px;
+    background:rgba(255,255,255,0.92); color:var(--navy); font-size:14.5px;
     padding:6px 14px; border-radius:20px; white-space:nowrap;
   }
   .capture-heading{ text-align:center; margin:20px 0 6px; }
-  .capture-heading h2{ font-family:'Playfair Display', serif; font-size:19px; margin:0 0 6px; color:var(--navy); }
-  .capture-heading p{ font-size:12.5px; color:#6b6250; margin:0; line-height:1.6; }
+  .capture-heading h2{ font-family:'Playfair Display', serif; font-size:21px; margin:0 0 6px; color:var(--navy); }
+  .capture-heading p{ font-size:14.5px; color:#6b6250; margin:0; line-height:1.6; }
   .capture-btns{ display:flex; flex-direction:column; gap:10px; margin-top:18px; align-items:center; }
-  .capture-btns .btn{ width:100%; max-width:340px; justify-content:center; padding:13px; font-size:14.5px; }
+  .capture-btns .btn{ width:100%; max-width:340px; justify-content:center; padding:13px; font-size:16.5px; }
   .capture-btns .btn-row{ width:100%; max-width:340px; }
   .capture-btns .btn-row .btn{ flex:1; }
   .back-link{
-    display:block; text-align:center; margin-top:14px; font-size:13px; color:#8a8265;
+    display:block; text-align:center; margin-top:14px; font-size:15px; color:#8a8265;
     background:none; border:none; cursor:pointer; text-decoration:underline;
   }
 </style>
@@ -175,6 +175,7 @@
       <div class="spinner" id="spinnerGen"><div class="ring"></div><span>AI가 그리는 중... (10~20초 정도 걸려요)</span></div>
       <p class="status" id="statusText2"></p>
       <div class="btn-row">
+        <button class="btn" id="confirmStyleBtn" disabled>선택하기</button>
         <button class="btn secondary" id="restartBtn">처음부터 다시</button>
       </div>
     </div>
@@ -377,28 +378,47 @@ enterBtn.addEventListener('click', () => {
   camera.start();
 });
 
+const confirmStyleBtn = document.getElementById('confirmStyleBtn');
+let pendingStyle = null;
+
 function renderStylePicker(){
   variantGrid.innerHTML = '';
   setStatus2('');
+  pendingStyle = null;
+  confirmStyleBtn.disabled = true;
   CARICATURE_STYLES.forEach(style => {
     const card = document.createElement('div');
     card.className = 'variant-card style-pick';
     card.innerHTML = `<div class="emoji">${style.emoji}</div><div class="label">${style.label}</div>`;
-    card.addEventListener('click', () => generateStyle(style, card));
+    card.addEventListener('click', () => {
+      if(!selectedGender){
+        setStatus2('성별을 먼저 선택해주세요.', 'warn');
+        return;
+      }
+      document.querySelectorAll('.variant-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      pendingStyle = style;
+      confirmStyleBtn.disabled = false;
+      setStatus2('원하는 스타일을 골랐으면 "선택하기"를 눌러주세요.');
+    });
     variantGrid.appendChild(card);
   });
 }
 
-// 2단계: 스타일 하나를 고르면, 그 스타일 "하나만" AI에게 요청
-async function generateStyle(style, cardEl){
+confirmStyleBtn.addEventListener('click', () => {
+  if(!pendingStyle) return;
+  generateStyle(pendingStyle);
+});
+
+// "선택하기" 버튼을 눌러야만 실제로 AI를 호출함 (카드 클릭만으로는 호출 안 됨 -> 실수로 여러 번 생성되는 것 방지)
+async function generateStyle(style){
   if(!selectedGender){
     setStatus2('성별을 먼저 선택해주세요.', 'warn');
     return;
   }
-  document.querySelectorAll('.variant-card').forEach(c => c.classList.remove('selected'));
-  cardEl.classList.add('selected');
   setStatus2('');
   spinnerGen.classList.add('active');
+  confirmStyleBtn.disabled = true;
 
   try{
     const formData = new FormData();
@@ -422,11 +442,13 @@ async function generateStyle(style, cardEl){
       ? 'AI가 이 스타일 생성을 거부했어요. 다른 스타일이나 다른 사진으로 시도해주세요.'
       : (data.message || 'AI 서버에 연결하지 못했어요.');
     setStatus2(msg, 'error');
+    confirmStyleBtn.disabled = false; // 다시 시도할 수 있게
 
   }catch(err){
     console.error(err);
     spinnerGen.classList.remove('active');
     setStatus2('AI 서버에 연결하지 못했어요. wifi 연결을 확인해주세요.', 'error');
+    confirmStyleBtn.disabled = false;
   }
 }
 
